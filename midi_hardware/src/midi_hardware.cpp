@@ -28,6 +28,8 @@ hardware_interface::CallbackReturn midi_hardware::MidiSystemHardware::on_init(co
         return CallbackReturn::ERROR;
     }
 
+
+
     for(const hardware_interface::ComponentInfo& joint : info_.joints)
     {
         m_JointsMap[joint.name] = Joint();
@@ -129,6 +131,8 @@ hardware_interface::return_type midi_hardware::MidiSystemHardware::write(const r
 {
     midi_custom_interfaces::msg::MotorCommand pwms;
     
+    
+    
     auto velCommandsRPM = wheelAngVelToMotorRPM(
         m_JointsMap.at(m_HwParams.leftWheelName).targetVelocity,
         m_JointsMap.at(m_HwParams.rightWheelName).targetVelocity
@@ -136,9 +140,11 @@ hardware_interface::return_type midi_hardware::MidiSystemHardware::write(const r
 
     pwms = mapRpmToPwm(velCommandsRPM);
     RCLCPP_INFO(rclcpp::get_logger("MidiSystemHardware"), "Target velocities: %d, %d", pwms.left_pwm, pwms.right_pwm);
+    
     m_HardwareInfoNode->sendCommands(
         pwms
     );
+    
 
     return hardware_interface::return_type::OK;
 
