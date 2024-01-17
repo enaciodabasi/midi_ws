@@ -5,7 +5,7 @@
 <!-- AGV Base -->
 
 <xacro:midi_ros2_control
-    name="MidiSystemHardware" prefix="" use_mock_hardware="false" />
+    name="midi" prefix="" use_mock_hardware="false" />
 
 <link name="base_link">
     <visual>

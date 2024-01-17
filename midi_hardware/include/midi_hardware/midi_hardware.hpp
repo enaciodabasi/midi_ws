@@ -26,6 +26,8 @@
 #include <hardware_interface/types/hardware_interface_type_values.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
+#include <std_msgs/msg/float64_multi_array.hpp>
+
 #include "midi_hardware/midi_hardware_defs.hpp"
 #include "midi_hardware/visibility_control.h"
 #include "midi_hardware/hardware_info_node.hpp"
@@ -84,7 +86,7 @@ namespace midi_hardware
 
     inline const double motorIncrementToWheelPosition(const int64_t motor_increment) const
     {
-      return (double)((motor_increment / m_HwParams.pulsePerRevolution) * (2.0 * M_PI) / m_HwParams.gearRatio);
+      return (double)(((double)motor_increment / (double)m_HwParams.pulsePerRevolution) * (2.0 * M_PI) / m_HwParams.gearRatio);
     }
 
     // inline const int32_t motorVelocityToWheelVelocity(const int64_t motor_increment) const

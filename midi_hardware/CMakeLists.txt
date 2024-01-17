@@ -13,6 +13,7 @@ rclcpp_components
 pluginlib
 realtime_tools
 midi_custom_interfaces
+std_msgs
 )
 find_package(ament_cmake REQUIRED)
 

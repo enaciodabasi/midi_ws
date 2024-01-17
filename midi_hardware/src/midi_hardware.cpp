@@ -154,8 +154,10 @@ hardware_interface::return_type midi_hardware::MidiSystemHardware::read(const rc
 {
     auto encoderData = m_HardwareInfoNode->getEncoderData();
 
-    m_JointsMap.at(m_HwParams.leftWheelName).currentPosition = motorIncrementToWheelPosition(encoderData.left_encoder);
-    m_JointsMap.at(m_HwParams.rightWheelName).currentPosition = motorIncrementToWheelPosition(encoderData.right_encoder);
+    if(encoderData.data.size() != 0){
+        m_JointsMap.at(m_HwParams.leftWheelName).currentPosition = motorIncrementToWheelPosition(encoderData.data.at(0));
+    m_JointsMap.at(m_HwParams.rightWheelName).currentPosition = motorIncrementToWheelPosition(encoderData.data.at(1));
+    }
     
     return hardware_interface::return_type::OK;
 }

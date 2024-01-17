@@ -53,19 +53,22 @@ bool HardwareInfoNode::init()
     rclcpp::QoS qos(10);
     qos.reliable().transient_local();
 
-    m_MotorCommandPub = this->create_publisher<midi_custom_interfaces::msg::MotorCommand>(
+    m_MotorCommandPub = this->create_publisher<std_msgs::msg::Float64MultiArray>(
         "/motor_command",
         qos
     );
 
-    m_RtMotorCommandPub = std::make_shared<realtime_tools::RealtimePublisher<midi_custom_interfaces::msg::MotorCommand>>(
+    m_RtMotorCommandPub = std::make_shared<realtime_tools::RealtimePublisher<std_msgs::msg::Float64MultiArray>>(
         m_MotorCommandPub
     );
 
-    m_EncoderDataSub = this->create_subscription<midi_custom_interfaces::msg::EncoderData>(
+    auto& msg = m_RtMotorCommandPub->msg_;
+    msg.data.resize(2);
+
+    m_EncoderDataSub = this->create_subscription<std_msgs::msg::Float64MultiArray>(
         "/encoder_data",
         qos,
-        [&](const midi_custom_interfaces::msg::EncoderData::SharedPtr encoder_data){
+        [&](const std_msgs::msg::Float64MultiArray::SharedPtr encoder_data){
             m_EncoderDataBuffer.writeFromNonRT(
                 *encoder_data
             );
@@ -76,18 +79,27 @@ bool HardwareInfoNode::init()
 
 }
 
-const midi_custom_interfaces::msg::EncoderData HardwareInfoNode::getEncoderData()
+const std_msgs::msg::Float64MultiArray HardwareInfoNode::getEncoderData()
 {
+    
     const auto currentEncoderData = *m_EncoderDataBuffer.readFromRT();
-    return currentEncoderData;
+    std_msgs::msg::Float64MultiArray pubMsg;
+    pubMsg.data.resize(2);
+    if(currentEncoderData.data.size() != 0){
+        pubMsg.data.at(0) = currentEncoderData.data.at(0);
+        pubMsg.data.at(1) = currentEncoderData.data.at(1);
+    }
+    
+    return pubMsg;
 }
 
 bool HardwareInfoNode::sendCommands(const midi_custom_interfaces::msg::MotorCommand& motor_command_msg)
-{
+{   
+    
     if(m_RtMotorCommandPub->trylock()){
         auto& msg = m_RtMotorCommandPub->msg_;
-        msg.left_pwm = motor_command_msg.left_pwm;
-        msg.right_pwm = motor_command_msg.right_pwm;
+        msg.data.at(0) = motor_command_msg.left_pwm;
+        msg.data.at(1) = motor_command_msg.right_pwm;
         m_RtMotorCommandPub->unlockAndPublish();
         return true;
     }
